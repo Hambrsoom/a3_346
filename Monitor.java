@@ -11,14 +11,23 @@ public class Monitor
 	 * Data members
 	 * ------------
 	 */
-
+	protected int[] philisopers;
+	protected int numberOfChopsticks = 0;
+	enum status{ EATING, THINKING, SLEEPING, TALKING }
 
 	/**
 	 * Constructor
+	 * TODO: set appropriate number of chopsticks based on the # of philosophers
+	 * 
+	 * Creating an array of Philosophers, whom are initially thinking. Also, add
+	 * a chopstick at every Philosopher created.
 	 */
 	public Monitor(int piNumberOfPhilosophers)
 	{
-		// TODO: set appropriate number of chopsticks based on the # of philosophers
+		this.numberOfChopsticks = piNumberOfPhilosophers;
+		for(int i = 0; i < piNumberOfPhilosophers; i++){
+			philisopers[i] = THINKING;
+		}
 	}
 
 	/*

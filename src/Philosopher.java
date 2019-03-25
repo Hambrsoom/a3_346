@@ -117,7 +117,7 @@ public class Philosopher extends BaseThread
 			 */
 			if(willTalk.nextInt(5) == 4)
 			{
-				DiningPhilosophers.soMonitor.requestTalk(); //Request to enter C.S
+				DiningPhilosophers.soMonitor.requestTalk(getTID()); //Request to enter C.S
 				talk();
 				DiningPhilosophers.soMonitor.endTalk();		//Leave C.S
 			} 

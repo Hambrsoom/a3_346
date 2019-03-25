@@ -11,9 +11,9 @@ public class Monitor
 	 * Data members
 	 * ------------
 	 */
-	protected int[] philisopers;
+	protected status[] philisopers;
 	protected int numberOfChopsticks = 0;
-	enum status{ EATING, THINKING, SLEEPING, TALKING }
+	enum status{ EATING, THINKING, SLEEPING, TALKING, HUNGRY }
 
 	/**
 	 * Constructor
@@ -26,7 +26,7 @@ public class Monitor
 	{
 		this.numberOfChopsticks = piNumberOfPhilosophers;
 		for(int i = 0; i < piNumberOfPhilosophers; i++){
-			philisopers[i] = THINKING;
+			philisopers[i] = status.THINKING;
 		}
 	}
 

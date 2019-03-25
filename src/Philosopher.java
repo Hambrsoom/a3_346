@@ -119,7 +119,7 @@ public class Philosopher extends BaseThread
 			{
 				DiningPhilosophers.soMonitor.requestTalk(getTID()); //Request to enter C.S
 				talk();
-				DiningPhilosophers.soMonitor.endTalk();		//Leave C.S
+				DiningPhilosophers.soMonitor.endTalk(getTID());		//Leave C.S
 			} 
 
 			yield();

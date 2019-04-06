@@ -1,3 +1,5 @@
+
+/**
 /**
  * Class Monitor
  * To synchronize dining philosophers.
@@ -18,6 +20,7 @@ public class Monitor
 	protected status[] philisopers;
 	protected boolean chopsticks[];
 	protected boolean canTalk = true;
+	protected int counterSleeping = 0;
 	enum status{ EATING, THINKING, SLEEPING, TALKING, HUNGRY }
 
 	/**
@@ -29,6 +32,8 @@ public class Monitor
 	 */
 	public Monitor(int piNumberOfPhilosophers)
 	{
+		philisopers = new status[piNumberOfPhilosophers];
+		chopsticks  = new boolean[piNumberOfPhilosophers];
 		for(int i = 0; i < piNumberOfPhilosophers; i++){
 			chopsticks[i] = true;
 			philisopers[i] = status.THINKING;
@@ -50,17 +55,21 @@ public class Monitor
 	 */
 	public synchronized void pickUp(final int piTID)
 	{
-		philisopers[piTID] = status.HUNGRY;
-		while(!chopsticks[(piTID-1)%chopsticks.length] && !chopsticks[(piTID)%chopsticks.length]){
+		philisopers[piTID-1] = status.HUNGRY;
+
+		//SHould we add the the hungry case ?
+		while(!chopsticks[(piTID-1)%chopsticks.length] || !chopsticks[(piTID)%chopsticks.length]){
 			try{
-				this.wait();
+				wait();
 			}catch(InterruptedException e){
 				System.out.println(e.getMessage());
 			}
 		}
-		chopsticks[(piTID-1)%chopsticks.length] = false;
-		chopsticks[(piTID)%chopsticks.length] = false;
-		philisopers[piTID] = status.EATING;
+		
+			chopsticks[(piTID-1)%chopsticks.length] = false;
+			chopsticks[(piTID)%chopsticks.length] = false;
+			philisopers[piTID-1] = status.EATING;
+		
 	}
 
 	/**
@@ -74,8 +83,8 @@ public class Monitor
 	{
 		chopsticks[(piTID-1)%chopsticks.length] = true;
 		chopsticks[(piTID)%chopsticks.length] = true;
-		philisopers[piTID] = status.THINKING;
-		this.notifyAll();
+		philisopers[piTID-1] = status.THINKING;
+		notifyAll();
 	}
 
 	/**
@@ -87,15 +96,15 @@ public class Monitor
 	 */
 	public synchronized void requestTalk(final int piTID)
 	{
-		while(!canTalk && philisopers[piTID] == status.EATING){
+		while(!canTalk || philisopers[piTID-1] == status.EATING || counterSleeping !=0 ){
 			try{
-				this.wait();
+				wait();
 			} catch(InterruptedException e){
 				System.out.println(e.getMessage());
 			}
 		}
 		canTalk = false;
-		philisopers[piTID] = status.TALKING;
+		philisopers[piTID-1] = status.TALKING;
 	}
 
 	/**
@@ -105,10 +114,36 @@ public class Monitor
 	public synchronized void endTalk(final int piTID)
 	{
 		canTalk = true;
-		philisopers[piTID] = status.THINKING;
-		this.notifyAll();
+		philisopers[piTID-1] = status.THINKING;
+		notifyAll();
 	}
-
+	
+	/**
+	 * When philosopher wants to sleep
+	 * 
+	 */
+	public synchronized void goToSleep(final int piTID) {
+		while(!canTalk) {
+			try{
+				wait();
+			} catch(InterruptedException e){
+				System.out.println(e.getMessage());
+			}
+		}
+		counterSleeping = counterSleeping +1;
+		philisopers[piTID-1] = status.SLEEPING;
+	}
+	/**
+	 * When philosopher will wake up
+	 * 
+	 */
+	public synchronized void wakeUp(final int piTID) {
+		counterSleeping = counterSleeping -1;
+		philisopers[piTID-1] = status.THINKING;
+		if(counterSleeping == 0) {
+			notifyAll();
+		}
+	}
 }
 
 // EOF

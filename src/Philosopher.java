@@ -91,6 +91,23 @@ public class Philosopher extends BaseThread
 			System.exit(1);
 		}
 	}
+	
+	public void sleep() 
+	{
+		try {
+			System.out.println("Philosopher with Thread ID " + this.getTID() + " has STARTED sleeping.");
+			yield();
+			//Sleep for a random amount of time before saying something brilliant
+			sleep((long)(Math.random() * TIME_TO_WASTE));
+			yield();
+			System.out.println("Philosopher with Thread ID " + this.getTID() + " is DONE sleeping.");
+		}
+		catch(InterruptedException e) {
+			System.err.println("phiosopher.talk(): ");
+			DiningPhilosophers.reportException(e);
+			System.exit(1);
+		}
+	}
 
 	/**
 	 * No, this is not the act of running, just the overridden Thread.run()
@@ -106,6 +123,12 @@ public class Philosopher extends BaseThread
 			DiningPhilosophers.soMonitor.putDown(getTID());
 
 			think();
+			
+			DiningPhilosophers.soMonitor.goToSleep(getTID());
+			
+			sleep();
+			
+			DiningPhilosophers.soMonitor.wakeUp(getTID());
 
 			/*
 			 * TODO:

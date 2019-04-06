@@ -4,6 +4,8 @@
  *
  * @author Serguei A. Mokhov, mokhov@cs.concordia.ca
  */
+
+import java.util.Scanner;
 public class DiningPhilosophers
 {
 	/*
@@ -46,8 +48,34 @@ public class DiningPhilosophers
 			 * Should be settable from the command line
 			 * or the default if no arguments supplied.
 			 */
-			int iPhilosophers = DEFAULT_NUMBER_OF_PHILOSOPHERS;
-
+			 int iPhilosophers ;
+			 String arg;
+		        int num = 0;
+		        
+		        	iPhilosophers = DEFAULT_NUMBER_OF_PHILOSOPHERS;
+		        	if(argv.length != 0) {
+				        try {
+				            arg = argv[0];
+				            num = Integer.parseInt(arg);
+				        } 
+				        catch (NumberFormatException e2) {
+				        	System.out.println(" is not a number");
+				        	System.exit(0);
+				        }
+		        	}
+		        
+		        
+		        //What if the input is 0 ??
+		        if(num < 0) { 
+		        	System.out.println(num + " is not a positive decimal integer ");
+		        	System.exit(0);
+		        }
+		        else if (num > 0) {
+		        	iPhilosophers = num;
+		        }
+		  
+		        System.out.println(" am here");
+		        System.out.println("Value ---------------------> " + iPhilosophers);
 			// Make the monitor aware of how many philosophers there are
 			soMonitor = new Monitor(iPhilosophers);
 

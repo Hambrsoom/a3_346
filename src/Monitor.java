@@ -21,7 +21,9 @@ public class Monitor
 	protected boolean chopsticks[];
 	protected boolean canTalk = true;
 	protected int counterSleeping = 0;
+	protected int [] priorities;
 	enum status{ EATING, THINKING, SLEEPING, TALKING, HUNGRY }
+	
 
 	/**
 	 * Constructor
@@ -34,9 +36,11 @@ public class Monitor
 	{
 		philisopers = new status[piNumberOfPhilosophers];
 		chopsticks  = new boolean[piNumberOfPhilosophers];
+		priorities  = new int[piNumberOfPhilosophers];
 		for(int i = 0; i < piNumberOfPhilosophers; i++){
-			chopsticks[i] = true;
+			chopsticks[i]  = true;
 			philisopers[i] = status.THINKING;
+			priorities[i]  = (int) Math.random();
 		}
 	}
 
@@ -53,23 +57,76 @@ public class Monitor
 	 * We make sure that both chopsticks are available. If one or none is missing, wait.
 	 * Otherwise, pick up both and start eating.
 	 */
-	public synchronized void pickUp(final int piTID)
+	public synchronized int pickUp(final int piTID)
 	{
-		philisopers[piTID-1] = status.HUNGRY;
+		int leftPhil;
+		int leftPhilPriority;
+		int highestPriorityPhil = 2;
+		philisopers[piTID - 1] = status.HUNGRY;
+
+		int rightPhil = piTID % philisopers.length;
+		int rightPhilPriority = priorities[piTID % philisopers.length];
+
+		if (piTID > 1) {
+			leftPhil         = (piTID - 2) % philisopers.length;
+			leftPhilPriority = priorities[(piTID - 2) % philisopers.length];
+		} else {
+			leftPhil = (2 - piTID) % philisopers.length;
+			leftPhilPriority = priorities[(2-piTID) % philisopers.length];
+		}
+
+		int me = (piTID - 1) % philisopers.length;
+		int myPriority = priorities[ (piTID - 1) % philisopers.length];
+
+		// checking if my right neighbor has a higher priority then me
+		// and he's hungry and can eat
+		// (note that this will happen only if I'm the last guy in the array)
+		if (rightPhilPriority > myPriority && philisopers[rightPhil] == status.HUNGRY) {
+			if (chopsticks[piTID % chopsticks.length] && chopsticks[(piTID + 1) % chopsticks.length]) {
+				highestPriorityPhil = rightPhil;
+			} else { // if hungry but don't have chopsticks
+				try {
+					System.out.println("Philosopher is waiting: " + piTID );
+					this.wait();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+
+			// if my right neighbour is not gonna eat I'll check if my left has the same
+			// conditions compared to me
+		} else if (leftPhilPriority > myPriority && philisopers[leftPhil] == status.HUNGRY) {
+			if (chopsticks[(piTID - 1) % chopsticks.length] && chopsticks[(piTID - 2) % chopsticks.length]) {
+				highestPriorityPhil = leftPhil;
+			} else { // if hungry but don't have chopsticks
+				try {
+					this.wait();
+					System.out.println("Philosopher is waiting: " + piTID);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			// if both of my neighbours won't eat then I will
+		} else {
+			highestPriorityPhil = me;
+		}
+		
 
 		//SHould we add the the hungry case ?
-		while(!chopsticks[(piTID-1)%chopsticks.length] || !chopsticks[(piTID)%chopsticks.length]){
+		highestPriorityPhil = highestPriorityPhil +1;
+		while(!chopsticks[(highestPriorityPhil-1)%chopsticks.length] || !chopsticks[(highestPriorityPhil)%chopsticks.length]){
 			try{
 				wait();
+				System.out.println("Philosopher is waiting: " + piTID);
 			}catch(InterruptedException e){
 				System.out.println(e.getMessage());
 			}
 		}
 		
-			chopsticks[(piTID-1)%chopsticks.length] = false;
-			chopsticks[(piTID)%chopsticks.length] = false;
-			philisopers[piTID-1] = status.EATING;
-		
+			chopsticks[(highestPriorityPhil-1)%chopsticks.length] = false;
+			chopsticks[(highestPriorityPhil)%chopsticks.length] = false;
+			philisopers[highestPriorityPhil-1] = status.EATING;
+			return highestPriorityPhil;
 	}
 
 	/**
@@ -81,9 +138,10 @@ public class Monitor
 	 */
 	public synchronized void putDown(final int piTID)
 	{
-		chopsticks[(piTID-1)%chopsticks.length] = true;
+		
+		chopsticks[(piTID- 1) %chopsticks.length] = true;
 		chopsticks[(piTID)%chopsticks.length] = true;
-		philisopers[piTID-1] = status.THINKING;
+		philisopers[piTID - 1] = status.THINKING;
 		notifyAll();
 	}
 

@@ -59,7 +59,7 @@ public class DiningPhilosophers
 				            num = Integer.parseInt(arg);
 				        } 
 				        catch (NumberFormatException e2) {
-				        	System.out.println(" is not a number");
+				        	System.out.println(argv[0] + " is not a number");
 				        	System.exit(0);
 				        }
 		        	}

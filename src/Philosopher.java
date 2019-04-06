@@ -116,11 +116,11 @@ public class Philosopher extends BaseThread
 	{
 		for(int i = 0; i < DiningPhilosophers.DINING_STEPS; i++)
 		{
-			DiningPhilosophers.soMonitor.pickUp(getTID());
+			int highestPriority  = DiningPhilosophers.soMonitor.pickUp(getTID());
 
 			eat();
 
-			DiningPhilosophers.soMonitor.putDown(getTID());
+			DiningPhilosophers.soMonitor.putDown(highestPriority);
 
 			think();
 			

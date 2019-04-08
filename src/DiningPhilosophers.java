@@ -67,15 +67,12 @@ public class DiningPhilosophers
 		        
 		        //What if the input is 0 ??
 		        if(num < 0) { 
-		        	System.out.println(num + " is not a positive decimal integer ");
+		        	System.out.println(num + " is not a positive  integer ");
 		        	System.exit(0);
 		        }
 		        else if (num > 0) {
 		        	iPhilosophers = num;
 		        }
-		  
-		        System.out.println(" am here");
-		        System.out.println("Value ---------------------> " + iPhilosophers);
 			// Make the monitor aware of how many philosophers there are
 			soMonitor = new Monitor(iPhilosophers);
 
@@ -83,17 +80,19 @@ public class DiningPhilosophers
 			Philosopher aoPhilosophers[] = new Philosopher[iPhilosophers];
 
 			// Let 'em sit down
+			System.out.println
+			(
+				iPhilosophers +
+				" philosopher(s) came in for a dinner."
+			);
+			
 			for(int j = 0; j < iPhilosophers; j++)
 			{
 				aoPhilosophers[j] = new Philosopher();
 				aoPhilosophers[j].start();
 			}
 
-			System.out.println
-			(
-				iPhilosophers +
-				" philosopher(s) came in for a dinner."
-			);
+			
 
 			// Main waits for all its children to die...
 			// I mean, philosophers to finish their dinner.

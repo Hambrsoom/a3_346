@@ -108,7 +108,22 @@ public class Philosopher extends BaseThread
 			System.exit(1);
 		}
 	}
-
+	public void useShakers() 
+	{
+		try {
+			System.out.println("Philosopher with Thread ID " + this.getTID() + " has STARTED using the shakers.");
+			yield();
+			//Sleep for a random amount of time before saying something brilliant
+			sleep((long)(Math.random() * TIME_TO_WASTE));
+			yield();
+			System.out.println("Philosopher with Thread ID " + this.getTID() + " is finished using the shakers.");
+		}
+		catch(InterruptedException e) {
+			System.err.println("phiosopher.talk(): ");
+			DiningPhilosophers.reportException(e);
+			System.exit(1);
+		}
+	}
 	/**
 	 * No, this is not the act of running, just the overridden Thread.run()
 	 */
@@ -117,9 +132,11 @@ public class Philosopher extends BaseThread
 		for(int i = 0; i < DiningPhilosophers.DINING_STEPS; i++)
 		{
 			int highestPriority  = DiningPhilosophers.soMonitor.pickUp(getTID());
-
+			DiningPhilosophers.soMonitor.pickUpShaker(highestPriority);
+			useShakers();
+			DiningPhilosophers.soMonitor.putDownShaker(highestPriority);
 			eat();
-
+			
 			DiningPhilosophers.soMonitor.putDown(highestPriority);
 
 			think();

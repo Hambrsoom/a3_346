@@ -22,6 +22,7 @@ public class Monitor
 	protected boolean canTalk = true;
 	protected int counterSleeping = 0;
 	protected int [] priorities;
+	protected int shakers[] = {-1, -1};
 	enum status{ EATING, THINKING, SLEEPING, TALKING, HUNGRY }
 	
 
@@ -40,7 +41,7 @@ public class Monitor
 		for(int i = 0; i < piNumberOfPhilosophers; i++){
 			chopsticks[i]  = true;
 			philisopers[i] = status.THINKING;
-			priorities[i]  = (int) Math.random();
+			priorities[i]  = (int) Math.random() *piNumberOfPhilosophers ;
 		}
 	}
 
@@ -81,13 +82,14 @@ public class Monitor
 		// checking if my right neighbor has a higher priority then me
 		// and he's hungry and can eat
 		// (note that this will happen only if I'm the last guy in the array)
-		if (rightPhilPriority > myPriority && philisopers[rightPhil] == status.HUNGRY) {
+		if (rightPhilPriority > myPriority && rightPhilPriority > leftPhilPriority && philisopers[rightPhil] == status.HUNGRY) {
 			if (chopsticks[piTID % chopsticks.length] && chopsticks[(piTID + 1) % chopsticks.length]) {
 				highestPriorityPhil = rightPhil;
 			} else { // if hungry but don't have chopsticks
 				try {
-					System.out.println("Philosopher is waiting: " + piTID );
+					System.out.println("Philosopher started waiting:" + piTID );
 					this.wait();
+					System.out.println("Philosopher finished waiting: " + piTID );
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -95,13 +97,14 @@ public class Monitor
 
 			// if my right neighbour is not gonna eat I'll check if my left has the same
 			// conditions compared to me
-		} else if (leftPhilPriority > myPriority && philisopers[leftPhil] == status.HUNGRY) {
+		} else if (leftPhilPriority > myPriority && leftPhilPriority > rightPhilPriority && philisopers[leftPhil] == status.HUNGRY) {
 			if (chopsticks[(piTID - 1) % chopsticks.length] && chopsticks[(piTID - 2) % chopsticks.length]) {
 				highestPriorityPhil = leftPhil;
 			} else { // if hungry but don't have chopsticks
 				try {
+					System.out.println("Philosopher  started waiting: " + piTID);
 					this.wait();
-					System.out.println("Philosopher is waiting: " + piTID);
+					System.out.println("Philosopher finished waiting: " + piTID );
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -116,8 +119,9 @@ public class Monitor
 		highestPriorityPhil = highestPriorityPhil +1;
 		while(!chopsticks[(highestPriorityPhil-1)%chopsticks.length] || !chopsticks[(highestPriorityPhil)%chopsticks.length]){
 			try{
+				System.out.println("Philosopher started waiting:  " + piTID);
 				wait();
-				System.out.println("Philosopher is waiting: " + piTID);
+				System.out.println("Philosopher finished waiting: " + piTID );
 			}catch(InterruptedException e){
 				System.out.println(e.getMessage());
 			}
@@ -201,6 +205,57 @@ public class Monitor
 		if(counterSleeping == 0) {
 			notifyAll();
 		}
+	}
+	
+	/** Task 6: Shakers
+	 *  Pick-up shakers
+	 * 	If shakers are not available, wait, otherwise, pick up
+	 */
+	
+	public synchronized void pickUpShaker(final int piTID){
+		if(shakers[0]== piTID || shakers[1]==piTID) {
+			System.out.println("Philosopher with ID "+ piTID + " already has a shaker");
+		}
+		else {
+			while(!(shakers[0]==-1) && !(shakers[1]==-1)){
+				try{
+					this.wait();
+				} catch(InterruptedException e){
+					System.out.println(e.getMessage());
+				}
+			}
+	
+			if(shakers[0] == -1){
+				shakers[0] = piTID;
+				System.out.println("Philosopher with TID " + piTID + " has picked up a shaker!");
+			} else{
+				shakers[1] = piTID;
+				System.out.println("Philosopher with TID " + piTID + " has picked up a shaker!");
+			}
+		}
+	}
+	
+	/** Task 6: Shakers
+	 *  Put-down shakers
+	 * 	Verify which shaker is taken and reset its value to available (-1).
+	 */
+	public synchronized void putDownShaker(final int piTID){
+		
+		if(shakers[0] == piTID){
+			shakers[0] = -1;
+			System.out.println("Philosopher with TID : " + piTID + " has put down a shaker!");
+			notifyAll();
+		} 
+		if(shakers[1] == piTID){
+			shakers[1] = -1;
+			System.out.println("Philosopher with TID : " + piTID + " has put down a shaker!");
+			notifyAll();
+		}
+		if(shakers[0] == -1 && shakers[1]==-1) {
+			System.out.println("Both shakers are available");
+			notifyAll();
+		}
+		
 	}
 }
 

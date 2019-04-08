@@ -1,0 +1,14 @@
+----TASK 5----
+In that task, you are required to show whether or not Task 2 above can be modified so
+that the number of philosophers can be changed randomly in the middle of the task; that is
+philosophers should be allowed to leave in the middle or new philosophers can join the table. If
+this is feasible, implement the changes. If not, you should comment clearly why this is not
+possible. 
+
+The question asks if the implementation is feasible. While we belive it is possible to implement, it would certainly not be feasible. This is due to the fact that the implementation can raise multiple questions. 
+
+- When does a philospher leave?
+- Does the philosopher leave with or without the chopstick?
+- Since there is priorities assigned, the worst case is that newcomers always have a high priority, increasing the chance of starvation to philosophers with low priority.
+- It is extremely likely that the array of chopsticks & philosophers do not coordinate if they can change dynamically
+- If by bad luck a low priority philosopher comes in next to a large number of high priority philosophers, this can casue starvation.
